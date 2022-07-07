@@ -13,8 +13,15 @@ if (!localStorage.wishList) {
     localStorage.wishList = JSON.stringify([])
 }
 const wishListLS = JSON.parse(localStorage.wishList);
+if (window.location.pathname.includes('/wishlist.html')) {
+    let wishRepo = wishListLS.reduce((acc, curr) => {
+        return [...acc, recentListLS.find(repo => repo.login === curr)]
+    }, [])
+    console.log(wishRepo)
+    renderCard(wishRepo, cardListEl)
+}
 
-let DATA = (recentListLS === []) ? [] : [...recentListLS];
+let DATA = []; //(recentListLS === []) ? [] : [...recentListLS];
 renderCard(DATA, cardListEl);
 
 async function getData(login) {
@@ -26,7 +33,7 @@ async function getData(login) {
         })
 }
 
-searchBtn.addEventListener('click', event => {
+searchBtn && searchBtn.addEventListener('click', event => {
     if (searchField.value !== '') {
         searchValue = searchField.value.trim();
         getData(searchValue);
