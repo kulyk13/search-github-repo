@@ -2,20 +2,31 @@ let searchField = document.getElementById('searchInput');
 let searchBtn = document.getElementById('searchBtn');
 let cardListEl = document.getElementById('cardList');
 let searchValue;
-let DATA;
 
+if (!localStorage.recentList) {
+    localStorage.recentList = JSON.stringify([])
+}
+
+const recentListLS = JSON.parse(localStorage.recentList);
+
+if (!localStorage.wishList) {
+    localStorage.wishList = JSON.stringify([])
+}
+const wishListLS = JSON.parse(localStorage.wishList);
+
+let DATA = (recentListLS === []) ? [] : [...recentListLS];
+renderCard(DATA, cardListEl);
 
 async function getData(login) {
     return await fetch(`https://api.github.com/users/${login}`)
         .then(res => res.json())
         .then(res => {
-            DATA = res;
-            renderCard(DATA, cardListEl)
-            console.log(DATA)
+            DATA.unshift(res);
+            renderCard(DATA, cardListEl);
         })
 }
 
-searchBtn.addEventListener('click', e => {
+searchBtn.addEventListener('click', event => {
     if (searchField.value !== '') {
         searchValue = searchField.value.trim();
         getData(searchValue);
@@ -23,16 +34,36 @@ searchBtn.addEventListener('click', e => {
     }
 })
 
+cardListEl && cardListEl.addEventListener('click', event => {
+    const btnEl = event.target.closest('.save-star');
+    if (btnEl) {
+        const id = btnEl.closest('.card').dataset.id;
+        if (!wishListLS.includes(id)) {
+            wishListLS.push(id);
+            btnEl.classList.add('text-warning');
+        } else{
+            wishListLS.splice(wishListLS.indexOf(id),1);
+            btnEl.classList.remove('text-warning');
+        }
+        localStorage.wishList = JSON.stringify(wishListLS);
+        btnEl.blur();
+    }
+});
 
 function renderCard(data, element) {
     let html = '';
-    html += createCard(data)
-    element.insertAdjacentHTML('afterbegin', html)
+    for (el of data) {
+        recentListLS.unshift(el);
+        html += createCard(el);
+        element.innerHTML = html;
+        console.log(el)
+        localStorage.recentList = JSON.stringify(recentListLS);
+    }
 }
 
 function createCard(repo_data) {
     return `
-        <div class="col card mb-3" data-id="${repo_data.id}">
+        <div class="col card mb-3" data-id="${repo_data.login}">
           <div class="row g-0">
             <div class="col-4 card-img-wrap">
               <a href="${repo_data.html_url}" class="w-100" target="_blank">
@@ -66,7 +97,7 @@ function createCard(repo_data) {
                       Go to repositories
                     </a>
                   </div>
-                  <button type="button" class="save-star btn btn-secondary text-warning">
+                  <button type="button" class="save-star btn btn-secondary  ${wishListLS.includes(repo_data.id) ? 'text-warning' : ''}">
                     <i class="icon-star-full"></i>
                   </button>
                 </div>

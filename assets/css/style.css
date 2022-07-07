@@ -140,8 +140,11 @@ li > i {
     right: 15px;
     font-size: 22px;
 }
-.save-star:hover .icon-star-full::before,
+.save-star:hover. .icon-star-full::before,
 .save-star:focus-within .icon-star-full::before {
+    color: gold;
+}
+.save-star.text-warning .icon-star-full::before {
     color: gold;
 }
 .text-muted:last-of-type {
