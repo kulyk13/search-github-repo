@@ -54,6 +54,13 @@ cardListEl && cardListEl.addEventListener('click', event => {
         }
         localStorage.wishList = JSON.stringify(wishListLS);
         btnEl.blur();
+        if (window.location.pathname.includes('/wishlist.html')) {
+            let wishRepo = wishListLS.reduce((acc, curr) => {
+                return [...acc, recentListLS.find(repo => repo.login === curr)]
+            }, [])
+            console.log(wishRepo)
+            renderCard(wishRepo, cardListEl)
+        }
     }
 });
 
@@ -104,7 +111,7 @@ function createCard(repo_data) {
                       Go to repositories
                     </a>
                   </div>
-                  <button type="button" class="save-star btn btn-secondary  ${wishListLS.includes(repo_data.id) ? 'text-warning' : ''}">
+                  <button type="button" class="save-star btn btn-secondary  ${wishListLS.includes(repo_data.login) ? 'text-warning' : ''}">
                     <i class="icon-star-full"></i>
                   </button>
                 </div>
