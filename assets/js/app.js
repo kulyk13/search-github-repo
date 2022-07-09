@@ -1,3 +1,4 @@
+let searchFormEl = document.getElementById('searchForm')
 let searchField = document.getElementById('searchInput');
 let searchBtn = document.getElementById('searchBtn');
 let cardListEl = document.getElementById('cardList');
@@ -12,16 +13,17 @@ const recentListLS = JSON.parse(localStorage.recentList);
 if (!localStorage.wishList) {
     localStorage.wishList = JSON.stringify([])
 }
+
 const wishListLS = JSON.parse(localStorage.wishList);
+
 if (window.location.pathname.includes('/wishlist.html')) {
     let wishRepo = wishListLS.reduce((acc, curr) => {
         return [...acc, recentListLS.find(repo => repo.login === curr)]
     }, [])
-    console.log(wishRepo)
     renderCard(wishRepo, cardListEl)
 }
 
-let DATA = []; //(recentListLS === []) ? [] : [...recentListLS];
+let DATA = [] //(recentListLS === []) ? [] : [...recentListLS];
 renderCard(DATA, cardListEl);
 
 async function getData(login) {
@@ -33,12 +35,14 @@ async function getData(login) {
         })
 }
 
-searchBtn && searchBtn.addEventListener('click', event => {
+searchFormEl && searchFormEl.addEventListener('submit', event => {
+    event.preventDefault()
     if (searchField.value !== '') {
         searchValue = searchField.value.trim();
         getData(searchValue);
         searchField.value = '';
     }
+    searchBtn.blur();
 })
 
 cardListEl && cardListEl.addEventListener('click', event => {
@@ -58,7 +62,6 @@ cardListEl && cardListEl.addEventListener('click', event => {
             let wishRepo = wishListLS.reduce((acc, curr) => {
                 return [...acc, recentListLS.find(repo => repo.login === curr)]
             }, [])
-            console.log(wishRepo)
             renderCard(wishRepo, cardListEl)
         }
     }
@@ -66,12 +69,16 @@ cardListEl && cardListEl.addEventListener('click', event => {
 
 function renderCard(data, element) {
     let html = '';
-    for (el of data) {
-        recentListLS.unshift(el);
-        html += createCard(el);
-        element.innerHTML = html;
-        console.log(el)
-        localStorage.recentList = JSON.stringify(recentListLS);
+    if (data.length > 0) {
+        data.forEach(elem => {
+            recentListLS.unshift(elem);
+            localStorage.recentList = JSON.stringify(recentListLS);
+            html += createCard(elem);
+            element.innerHTML = html;
+        })
+    } else {
+        html = `<h2 class="ms-2">There are no results...</h2>`;
+        // element.innerHTML = html;
     }
 }
 
@@ -87,7 +94,7 @@ function createCard(repo_data) {
             <div class="col-8 card-body-wrap">
               <div class="card-body">
                 <a href="${repo_data.html_url}" class="card-title mb-3" target="_blank">
-                    ${repo_data.name}&nbsp;
+                    ${repo_data.name ?? 'Name is missing'}&nbsp;
                     <span> • </span>
                     &nbsp;${repo_data.login}
                 </a>

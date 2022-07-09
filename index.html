@@ -23,11 +23,11 @@
             <div class="row py-3 align-items-end">
                 <div class="col-3"></div>
                 <div class="col-6">
-                    <form role="search">
+                    <form action="#" id="searchForm" name="searchForm" role="search">
                         <label for="searchInput" class="form-label">Search GitHub</label>
                         <div class="d-flex">
-                            <input id="searchInput" class="form-control me-2" type="search" placeholder="Enter GitHub login..." aria-label="Search" required>
-                            <button id="searchBtn" class="btn btn-outline-success" type="button">Search</button>
+                            <input id="searchInput" name="search" class="form-control me-2" type="search" placeholder="Enter GitHub login..." aria-label="Search repo" required>
+                            <button id="searchBtn" class="btn btn-outline-success" type="submit" aria-label="search">Search</button>
                         </div>
                     </form>
                 </div>
