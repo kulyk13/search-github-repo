@@ -20,20 +20,25 @@ if (window.location.pathname.includes('/wishlist.html')) {
     let wishRepo = wishListLS.reduce((acc, curr) => {
         return [...acc, recentListLS.find(repo => repo.login === curr)]
     }, [])
-    renderCard(wishRepo, cardListEl)
+    renderCard(wishRepo, cardListEl, false)
 }
 
-let DATA = [] //(recentListLS === []) ? [] : [...recentListLS];
+let DATA = []; //(recentListLS === []) ? [] : recentListLS;
 renderCard(DATA, cardListEl);
 
 async function getData(login, addRecent) {
     return await fetch(`https://api.github.com/users/${login}`)
         .then(res => res.json())
         .then(res => {
-            DATA.unshift(res);
-            if (addRecent) {
-                renderCard(DATA, cardListEl, true);
-            } else {
+            if (res.message !== 'Not Found') {
+                DATA.unshift(res);
+                if (addRecent) {
+                    renderCard(DATA, cardListEl, true);
+                } else {
+                    renderCard(DATA, cardListEl, false);
+                }
+            } else if (res.message === 'Not Found') {
+                DATA.unshift('User Not Found');
                 renderCard(DATA, cardListEl, false);
             }
         })
@@ -49,10 +54,18 @@ searchFormEl && searchFormEl.addEventListener('submit', event => {
     searchBtn.blur();
 })
 
+searchFormEl && searchFormEl.addEventListener('change', event => {
+    if (searchField.value !== '') {
+        searchValue = searchField.value.trim();
+        getData(searchValue, true);
+    }
+})
+
 searchFormEl && searchFormEl.addEventListener('input', event => {
-    event.preventDefault()
-    searchValue = searchField.value.trim();
-    getData(searchValue, false);
+    if (searchField.value !== '') {
+        searchValue = searchField.value.trim();
+        getData(searchValue, false);
+    }
 })
 
 cardListEl && cardListEl.addEventListener('click', event => {
