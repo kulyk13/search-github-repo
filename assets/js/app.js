@@ -26,12 +26,16 @@ if (window.location.pathname.includes('/wishlist.html')) {
 let DATA = [] //(recentListLS === []) ? [] : [...recentListLS];
 renderCard(DATA, cardListEl);
 
-async function getData(login) {
+async function getData(login, addRecent) {
     return await fetch(`https://api.github.com/users/${login}`)
         .then(res => res.json())
         .then(res => {
             DATA.unshift(res);
-            renderCard(DATA, cardListEl);
+            if (addRecent) {
+                renderCard(DATA, cardListEl, true);
+            } else {
+                renderCard(DATA, cardListEl, false);
+            }
         })
 }
 
@@ -39,10 +43,16 @@ searchFormEl && searchFormEl.addEventListener('submit', event => {
     event.preventDefault()
     if (searchField.value !== '') {
         searchValue = searchField.value.trim();
-        getData(searchValue);
+        getData(searchValue, true);
         searchField.value = '';
     }
     searchBtn.blur();
+})
+
+searchFormEl && searchFormEl.addEventListener('input', event => {
+    event.preventDefault()
+    searchValue = searchField.value.trim();
+    getData(searchValue, false);
 })
 
 cardListEl && cardListEl.addEventListener('click', event => {
@@ -67,11 +77,13 @@ cardListEl && cardListEl.addEventListener('click', event => {
     }
 });
 
-function renderCard(data, element) {
+function renderCard(data, element, addRecent) {
     let html = '';
     if (data.length > 0) {
         data.forEach(elem => {
-            recentListLS.unshift(elem);
+            if (addRecent) {
+                recentListLS.unshift(elem);
+            }
             localStorage.recentList = JSON.stringify(recentListLS);
             html += createCard(elem);
             element.innerHTML = html;
